@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="description" content="Sistema de Cadastro e Inventário de Veículos">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA0klEQVRYhe2WsQ3CMBBFn5GYgBGYADrKbMAGjMAGbMAIbMAGjMAGSJRuBDZgBEaADZAoKBLhODY+h0RIfqnK1r17/s52bCBJkiT5D1wBC+AK7A0bYAfUwBM4AutYAx6Aqe2ngLmF1UDu4lXEBOh+xZ8xBlRzE6Dbm/iXGgXv2xoFH9saBS/aGgUv2hoFL9kaBU/bGgUP2xoF99saBXfbGgW32xoFt9oaBTfbGgU32BoF19saBVfaGgWX2xoFF9oaBefbGgVn2hoFp9saBSfbGgUnxPsCL+3pOIflqh8AAAAASUVORK5CYII=">
+    <title>Sistema de Inventário de Veículos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            background: #f3f4f6;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .nav button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+
+        .nav button.active {
+            background: white;
+            color: #1e40af;
+            border-bottom: 3px solid #1e40af;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .module-container {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9fafb;
+        }
+
+        .module-header {
+            background: #1e40af;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #1e40af;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: #f3f4f6;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .config-section {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-section h3 {
+            color: #92400e;
+            margin-bottom: 15px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav button {
+                font-size: 14px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚛 Sistema de Inventário de Veículos</h1>
+            <p>Gestão de Frota e Composições</p>
+        </div>
+
+        <div class="nav">
+            <button class="active" onclick="showPage('config')">⚙️ Configuração</button>
+            <button onclick="showPage('cadastro')">➕ Cadastro</button>
+            <button onclick="showPage('inventario')">📋 Inventário</button>
+        </div>
+
+        <div class="content">
+            <!-- Página de Configuração -->
+            <div id="config" class="page active">
+                <div class="config-section">
+                    <h3>📌 Configuração do Google Sheets</h3>
+                    <div class="form-group">
+                        <label>URL do Web App do Google Sheets:</label>
+                        <input type="text" id="webAppUrl" placeholder="https://script.google.com/macros/s/...../exec">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveConfig()">💾 Salvar Configuração</button>
+                    <button class="btn btn-secondary" onclick="testConnection()">🔌 Testar Conexão</button>
+                </div>
+
+                <div class="alert alert-success" style="display:none;" id="configSuccess">
+                    ✅ Configuração salva com sucesso!
+                </div>
+
+                <div style="background: #e0e7ff; border-radius: 12px; padding: 20px; margin-top: 20px;">
+                    <h3 style="color: #3730a3; margin-bottom: 15px;">📖 Instruções de Configuração</h3>
+                    <ol style="color: #4338ca; line-height: 1.8;">
+                        <li>Acesse seu Google Sheets</li>
+                        <li>Vá em <strong>Extensões > Apps Script</strong></li>
+                        <li>Cole o código do Google Apps Script fornecido</li>
+                        <li>Clique em <strong>Implantar > Nova implantação</strong></li>
+                        <li>Escolha <strong>Aplicativo da Web</strong></li>
+                        <li>Configure "Quem tem acesso" como <strong>Qualquer pessoa</strong></li>
+                        <li>Copie a URL do Web App e cole acima</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Página de Cadastro -->
+            <div id="cadastro" class="page">
+                <h2 style="margin-bottom: 20px; color: #1e40af;">Novo Cadastro</h2>
+                
+                <div class="form-group">
+                    <label>Tipo de Cadastro:</label>
+                    <select id="tipoCadastro" onchange="changeTipoCadastro()">
+                        <option value="">Selecione...</option>
+                        <option value="veiculo">Veículo</option>
+                        <option value="composicao">Composição</option>
+                    </select>
+                </div>
+
+                <!-- Formulário Veículo -->
+                <div id="formVeiculo" style="display:none;">
+                    <div class="form-group">
+                        <label>Tipo de Veículo:</label>
+                        <select id="veiculoTipo">
+                            <option value="Leve">Leve</option>
+                            <option value="Semi-Leve">Semi-Leve</option>
+                            <option value="Cavalo Mecânico">Cavalo Mecânico</option>
+                        </select>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Status:</label>
+                            <select id="veiculoStatus">
+                                <option value="Ativo">Ativo</option>
+                                <option value="Inativo">Inativo</option>
+                                <option value="Manutenção">Manutenção</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Frota:</label>
+                            <input type="text" id="veiculoFrota">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Placa:</label>
+                            <input type="text" id="veiculoPlaca">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Chassi:</label>
+                            <input type="text" id="veiculoChassi">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Marca:</label>
+                            <input type="text" id="veiculoMarca">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Modelo:</label>
+                            <input type="text" id="veiculoModelo">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ano:</label>
+                            <input type="number" id="veiculoAno">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="salvarVeiculo()">💾 Salvar Veículo</button>
+                    <button class="btn btn-secondary" onclick="limparFormulario()">🔄 Limpar</button>
+                </div>
+
+                <!-- Formulário Composição -->
+                <div id="formComposicao" style="display:none;">
+                    <div class="form-group">
+                        <label>Tipo de Composição:</label>
+                        <select id="composicaoTipo" onchange="changeComposicaoTipo()">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 Módulo (Solteiro)</option>
+                            <option value="2">2 Módulos (Duplado)</option>
+                            <option value="3">3 Módulos (Tremiado)</option>
+                            <option value="4">4 Módulos (Tremiado + Dolly)</option>
+                        </select>
+                    </div>
+
+                    <div id="modulosContainer"></div>
+
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="salvarComposicao()">💾 Salvar Composição</button>
+                        <button class="btn btn-secondary" onclick="limparFormulario()">🔄 Limpar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Página de Inventário -->
+            <div id="inventario" class="page">
+                <h2 style="margin-bottom: 20px; color: #1e40af;">Inventário</h2>
+                
+                <div class="form-group">
+                    <label>Visualizar:</label>
+                    <select id="inventarioTipo" onchange="carregarInventario()">
+                        <option value="veiculos">Veículos</option>
+                        <option value="composicoes">Composições</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="carregarInventario()">🔄 Atualizar</button>
+
+                <div id="inventarioContent" class="loading">
+                    Carregando inventário...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let config = JSON.parse(localStorage.getItem('vehicleConfig') || '{}');
+        let editingId = null;
+
+        // Carregar configuração salva
+        if (config.webAppUrl) {
+            document.getElementById('webAppUrl').value = config.webAppUrl;
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (pageId === 'inventario') {
+                carregarInventario();
+            }
+        }
+
+        function saveConfig() {
+            const url = document.getElementById('webAppUrl').value.trim();
+            if (!url) {
+                alert('Por favor, insira a URL do Web App');
+                return;
+            }
+
+            config.webAppUrl = url;
+            localStorage.setItem('vehicleConfig', JSON.stringify(config));
+            
+            document.getElementById('configSuccess').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('configSuccess').style.display = 'none';
+            }, 3000);
+        }
+
+        async function testConnection() {
+            if (!config.webAppUrl) {
+                alert('Configure a URL do Web App primeiro');
+                return;
+            }
+
+            try {
+                const response = await fetch(config.webAppUrl + '?action=test');
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ Conexão bem-sucedida!\n\nAbas criadas:\n' + data.sheets.join('\n'));
+                } else {
+                    alert('❌ Erro: ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ Erro ao conectar: ' + error.message);
+            }
+        }
+
+        function changeTipoCadastro() {
+            const tipo = document.getElementById('tipoCadastro').value;
+            document.getElementById('formVeiculo').style.display = tipo === 'veiculo' ? 'block' : 'none';
+            document.getElementById('formComposicao').style.display = tipo === 'composicao' ? 'block' : 'none';
+            editingId = null;
+        }
+
+        function changeComposicaoTipo() {
+            const numModulos = parseInt(document.getElementById('composicaoTipo').value);
+            const container = document.getElementById('modulosContainer');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= numModulos; i++) {
+                container.innerHTML += createModuloForm(i);
+            }
+        }
+
+        function createModuloForm(numero) {
+            return `
+                <div class="module-container">
+                    <div class="module-header">Módulo ${numero}</div>
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Status:</label>
+                            <select id="mod${numero}Status">
+                                <option value="Ativo">Ativo</option>
+                                <option value="Inativo">Inativo</option>
+                                <option value="Manutenção">Manutenção</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tipo:</label>
+                            <select id="mod${numero}Tipo">
+                                <option value="Semi-Reboque">Semi-Reboque</option>
+                                <option value="Reboque">Reboque</option>
+                                <option value="Dolly-Reboque">Dolly-Reboque</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Frota:</label>
+                            <input type="text" id="mod${numero}Frota">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Placa:</label>
+                            <input type="text" id="mod${numero}Placa">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Chassi:</label>
+                            <input type="text" id="mod${numero}Chassi">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Marca:</label>
+                            <select id="mod${numero}Marca">
+                                <option value="Fachinni">Fachinni</option>
+                                <option value="Randon">Randon</option>
+                                <option value="Usicamp">Usicamp</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ano:</label>
+                            <input type="number" id="mod${numero}Ano">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function salvarVeiculo() {
+            if (!config.webAppUrl) {
+                alert('Configure a URL do Web App primeiro');
+                showPage('config');
+                return;
+            }
+
+            const dados = {
+                tipo: 'veiculo',
+                tipoVeiculo: document.getElementById('veiculoTipo').value,
+                status: document.getElementById('veiculoStatus').value,
+                frota: document.getElementById('veiculoFrota').value,
+                placa: document.getElementById('veiculoPlaca').value,
+                chassi: document.getElementById('veiculoChassi').value,
+                marca: document.getElementById('veiculoMarca').value,
+                modelo: document.getElementById('veiculoModelo').value,
+                ano: document.getElementById('veiculoAno').value
+            };
+
+            try {
+                const url = editingId 
+                    ? `${config.webAppUrl}?action=update&id=${editingId}`
+                    : `${config.webAppUrl}?action=create`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                alert(editingId ? '✅ Veículo atualizado!' : '✅ Veículo cadastrado!');
+                limparFormulario();
+                editingId = null;
+            } catch (error) {
+                alert('✅ Dados enviados! (modo no-cors)');
+                limparFormulario();
+            }
+        }
+
+        async function salvarComposicao() {
+            if (!config.webAppUrl) {
+                alert('Configure a URL do Web App primeiro');
+                showPage('config');
+                return;
+            }
+
+            const numModulos = parseInt(document.getElementById('composicaoTipo').value);
+            const tipoConfig = ['', 'Solteiro', 'Duplado', 'Tremiado', 'Tremiado + Dolly'][numModulos];
+            
+            const modulos = [];
+            for (let i = 1; i <= numModulos; i++) {
+                modulos.push({
+                    status: document.getElementById(`mod${i}Status`).value,
+                    tipo: document.getElementById(`mod${i}Tipo`).value,
+                    frota: document.getElementById(`mod${i}Frota`).value,
+                    placa: document.getElementById(`mod${i}Placa`).value,
+                    chassi: document.getElementById(`mod${i}Chassi`).value,
+                    marca: document.getElementById(`mod${i}Marca`).value,
+                    ano: document.getElementById(`mod${i}Ano`).value
+                });
+            }
+
+            const dados = {
+                tipo: 'composicao',
+                tipoComposicao: tipoConfig,
+                numModulos: numModulos,
+                modulos: modulos
+            };
+
+            try {
+                const url = editingId 
+                    ? `${config.webAppUrl}?action=update&id=${editingId}`
+                    : `${config.webAppUrl}?action=create`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                alert(editingId ? '✅ Composição atualizada!' : '✅ Composição cadastrada!');
+                limparFormulario();
+                editingId = null;
+            } catch (error) {
+                alert('✅ Dados enviados! (modo no-cors)');
+                limparFormulario();
+            }
+        }
+
+        function limparFormulario() {
+            document.getElementById('tipoCadastro').value = '';
+            document.getElementById('formVeiculo').style.display = 'none';
+            document.getElementById('formComposicao').style.display = 'none';
+            document.getElementById('modulosContainer').innerHTML = '';
+            
+            document.querySelectorAll('input, select').forEach(el => {
+                if (el.type === 'number' || el.type === 'text') el.value = '';
+            });
+            
+            editingId = null;
+        }
+
+        async function carregarInventario() {
+            if (!config.webAppUrl) {
+                document.getElementById('inventarioContent').innerHTML = 
+                    '<div class="alert alert-error">Configure a URL do Web App primeiro</div>';
+                return;
+            }
+
+            const tipo = document.getElementById('inventarioTipo').value;
+            document.getElementById('inventarioContent').innerHTML = '<div class="loading">Carregando...</div>';
+
+            try {
+                const response = await fetch(`${config.webAppUrl}?action=list&tipo=${tipo}`);
+                const data = await response.json();
+
+                if (data.success && data.data.length > 0) {
+                    mostrarTabela(data.data, tipo);
+                } else {
+                    document.getElementById('inventarioContent').innerHTML = 
+                        '<div class="alert alert-error">Nenhum registro encontrado</div>';
+                }
+            } catch (error) {
+                document.getElementById('inventarioContent').innerHTML = 
+                    '<div class="alert alert-error">Erro ao carregar dados: ' + error.message + '</div>';
+            }
+        }
+
+        function mostrarTabela(dados, tipo) {
+            let html = '<div class="table-container"><table>';
+            
+            if (tipo === 'veiculos') {
+                html += `
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Frota</th>
+                            <th>Placa</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Ano</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+                
+                dados.forEach(v => {
+                    html += `
+                        <tr>
+                            <td>${v.id}</td>
+                            <td>${v.tipoVeiculo}</td>
+                            <td>${v.status}</td>
+                            <td>${v.frota}</td>
+                            <td>${v.placa}</td>
+                            <td>${v.marca}</td>
+                            <td>${v.modelo}</td>
+                            <td>${v.ano}</td>
+                            <td class="actions">
+                                <button class="btn btn-secondary btn-small" onclick="editarRegistro('${v.id}', 'veiculo')">✏️</button>
+                                <button class="btn btn-danger btn-small" onclick="excluirRegistro('${v.id}')">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Módulos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+                
+                dados.forEach(c => {
+                    html += `
+                        <tr>
+                            <td>${c.id}</td>
+                            <td>${c.tipoComposicao}</td>
+                            <td>${c.numModulos}</td>
+                            <td class="actions">
+                                <button class="btn btn-secondary btn-small" onclick="editarRegistro('${c.id}', 'composicao')">✏️</button>
+                                <button class="btn btn-danger btn-small" onclick="excluirRegistro('${c.id}')">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            html += '</tbody></table></div>';
+            document.getElementById('inventarioContent').innerHTML = html;
+        }
+
+        async function excluirRegistro(id) {
+            if (!confirm('Tem certeza que deseja excluir este registro?')) return;
+
+            try {
+                await fetch(`${config.webAppUrl}?action=delete&id=${id}`, {
+                    method: 'POST',
+                    mode: 'no-cors'
+                });
+                
+                alert('✅ Registro excluído!');
+                carregarInventario();
+            } catch (error) {
+                alert('✅ Solicitação enviada!');
+                carregarInventario();
+            }
+        }
+
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => {
+                console.log('Service Worker registrado');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "Sistema de Inventário de Veículos",
+  "short_name": "Inventário",
+  "description": "Sistema de Cadastro e Inventário de Veículos e Composições",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA0klEQVRYhe2WsQ3CMBBFn5GYgBGYADrKbMAGjMAGbMAIbMAGjMAGSJRuBDZgBEaADZAoKBLhODY+h0RIfqnK1r17/s52bCBJkiT5D1wBC+AK7A0bYAfUwBM4AutYAx6Aqe2ngLmF1UDu4lXEBOh+xZ8xBlRzE6Dbm/iXGgXv2xoFH9saBS/aGgUv2hoFL9kaBU/bGgUP2xoF99saBXfbGgW32xoFt9oaBTfbGgU32BoF19saBVfaGgWX2xoFF9oaBefbGgVn2hoFp9saBSfbGgUnxPsCL+3pOIflqh8AAAAASUVORK5CYII=",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
