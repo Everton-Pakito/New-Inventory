@@ -462,7 +462,10 @@
             }
 
             try {
-                const response = await fetch(config.webAppUrl + '?action=test');
+                const response = await fetch(config.webAppUrl + '?action=test', {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
                 const data = await response.json();
                 
                 if (data.success) {
@@ -471,7 +474,7 @@
                     alert('❌ Erro: ' + data.message);
                 }
             } catch (error) {
-                alert('❌ Erro ao conectar: ' + error.message);
+                alert('❌ Erro ao conectar: ' + error.message + '\n\nVerifique se:\n1. A URL está correta\n2. A implantação está ativa\n3. O acesso está configurado como "Qualquer pessoa"');
             }
         }
 
@@ -569,23 +572,34 @@
             };
 
             try {
-                const url = editingId 
-                    ? `${config.webAppUrl}?action=update&id=${editingId}`
-                    : `${config.webAppUrl}?action=create`;
+                const params = new URLSearchParams({
+                    action: editingId ? 'update' : 'create'
+                });
                 
-                const response = await fetch(url, {
+                if (editingId) {
+                    params.append('id', editingId);
+                }
+                
+                const response = await fetch(`${config.webAppUrl}?${params.toString()}`, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    redirect: 'follow',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify(dados)
                 });
 
-                alert(editingId ? '✅ Veículo atualizado!' : '✅ Veículo cadastrado!');
-                limparFormulario();
-                editingId = null;
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(editingId ? '✅ Veículo atualizado com sucesso!' : '✅ Veículo cadastrado com sucesso!');
+                    limparFormulario();
+                    editingId = null;
+                } else {
+                    alert('❌ Erro: ' + result.message);
+                }
             } catch (error) {
-                alert('✅ Dados enviados! (modo no-cors)');
-                limparFormulario();
+                alert('❌ Erro ao salvar: ' + error.message);
             }
         }
 
@@ -620,23 +634,34 @@
             };
 
             try {
-                const url = editingId 
-                    ? `${config.webAppUrl}?action=update&id=${editingId}`
-                    : `${config.webAppUrl}?action=create`;
+                const params = new URLSearchParams({
+                    action: editingId ? 'update' : 'create'
+                });
                 
-                const response = await fetch(url, {
+                if (editingId) {
+                    params.append('id', editingId);
+                }
+                
+                const response = await fetch(`${config.webAppUrl}?${params.toString()}`, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    redirect: 'follow',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify(dados)
                 });
 
-                alert(editingId ? '✅ Composição atualizada!' : '✅ Composição cadastrada!');
-                limparFormulario();
-                editingId = null;
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(editingId ? '✅ Composição atualizada com sucesso!' : '✅ Composição cadastrada com sucesso!');
+                    limparFormulario();
+                    editingId = null;
+                } else {
+                    alert('❌ Erro: ' + result.message);
+                }
             } catch (error) {
-                alert('✅ Dados enviados! (modo no-cors)');
-                limparFormulario();
+                alert('❌ Erro ao salvar: ' + error.message);
             }
         }
 
@@ -656,26 +681,31 @@
         async function carregarInventario() {
             if (!config.webAppUrl) {
                 document.getElementById('inventarioContent').innerHTML = 
-                    '<div class="alert alert-error">Configure a URL do Web App primeiro</div>';
+                    '<div class="alert alert-error">⚠️ Configure a URL do Web App primeiro na aba Configuração</div>';
                 return;
             }
 
             const tipo = document.getElementById('inventarioTipo').value;
-            document.getElementById('inventarioContent').innerHTML = '<div class="loading">Carregando...</div>';
+            document.getElementById('inventarioContent').innerHTML = '<div class="loading">⏳ Carregando dados...</div>';
 
             try {
-                const response = await fetch(`${config.webAppUrl}?action=list&tipo=${tipo}`);
+                const response = await fetch(`${config.webAppUrl}?action=list&tipo=${tipo}`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
                 const data = await response.json();
 
                 if (data.success && data.data.length > 0) {
                     mostrarTabela(data.data, tipo);
                 } else {
                     document.getElementById('inventarioContent').innerHTML = 
-                        '<div class="alert alert-error">Nenhum registro encontrado</div>';
+                        '<div class="alert alert-error">📭 Nenhum registro encontrado</div>';
                 }
             } catch (error) {
                 document.getElementById('inventarioContent').innerHTML = 
-                    '<div class="alert alert-error">Erro ao carregar dados: ' + error.message + '</div>';
+                    '<div class="alert alert-error">❌ Erro ao carregar dados: ' + error.message + 
+                    '<br><br>Verifique se a URL do Web App está correta e se a implantação está ativa.</div>';
             }
         }
 
@@ -751,19 +781,28 @@
         }
 
         async function excluirRegistro(id) {
-            if (!confirm('Tem certeza que deseja excluir este registro?')) return;
+            if (!confirm('⚠️ Tem certeza que deseja excluir este registro?\n\nEsta ação não pode ser desfeita.')) return;
 
             try {
-                await fetch(`${config.webAppUrl}?action=delete&id=${id}`, {
+                const response = await fetch(`${config.webAppUrl}?action=delete&id=${id}`, {
                     method: 'POST',
-                    mode: 'no-cors'
+                    redirect: 'follow',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({id: id})
                 });
                 
-                alert('✅ Registro excluído!');
-                carregarInventario();
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Registro excluído com sucesso!');
+                    carregarInventario();
+                } else {
+                    alert('❌ Erro ao excluir: ' + result.message);
+                }
             } catch (error) {
-                alert('✅ Solicitação enviada!');
-                carregarInventario();
+                alert('❌ Erro ao excluir: ' + error.message);
             }
         }
 
