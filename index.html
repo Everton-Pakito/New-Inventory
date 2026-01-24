@@ -451,7 +451,8 @@
 
                         <div class="form-group">
                             <label>Marca:</label>
-                            <select id="veiculoMarca">
+                            <select id="veiculoMarca" onchange="atualizarModelosVeiculo()">
+                                <option value="">Selecione...</option>
                                 <option value="SCANIA">SCANIA</option>
                                 <option value="VOLVO">VOLVO</option>
                                 <option value="MERCEDES">MERCEDES</option>
@@ -461,7 +462,9 @@
 
                         <div class="form-group">
                             <label>Modelo:</label>
-                            <input type="text" id="veiculoModelo">
+                            <select id="veiculoModelo">
+                                <option value="">Selecione a marca primeiro</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -526,6 +529,39 @@
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw5e6wBxr4_z2FrMRvdzT2nV7_KEafl_M_AW2J3pT3wxV7wKVTJldoFINqOJ6baKjAb/exec';
         let editingId = null;
+
+        // Modelos de veículos por marca
+        const modelosPorMarca = {
+            'SCANIA': [
+                'G560 A6X4 XT CS',
+                'G560 A6X4 XT'
+            ],
+            'VOLVO': [],
+            'MERCEDES': [],
+            'VOLKSWAGEN': []
+        };
+
+        function atualizarModelosVeiculo() {
+            const marca = document.getElementById('veiculoMarca').value;
+            const selectModelo = document.getElementById('veiculoModelo');
+            
+            selectModelo.innerHTML = '<option value="">Selecione o modelo</option>';
+            
+            if (marca && modelosPorMarca[marca]) {
+                const modelos = modelosPorMarca[marca];
+                
+                if (modelos.length > 0) {
+                    modelos.forEach(modelo => {
+                        const option = document.createElement('option');
+                        option.value = modelo;
+                        option.textContent = modelo;
+                        selectModelo.appendChild(option);
+                    });
+                } else {
+                    selectModelo.innerHTML = '<option value="">Nenhum modelo cadastrado</option>';
+                }
+            }
+        }
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
