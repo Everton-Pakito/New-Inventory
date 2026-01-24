@@ -19,46 +19,60 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
             background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
             color: white;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
         }
 
         .nav {
             display: flex;
             background: #f3f4f6;
             border-bottom: 2px solid #e5e7eb;
+            overflow-x: auto;
         }
 
         .nav button {
             flex: 1;
-            padding: 15px;
+            min-width: 120px;
+            padding: 15px 10px;
             border: none;
             background: transparent;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             color: #6b7280;
             transition: all 0.3s;
+            white-space: nowrap;
         }
 
         .nav button.active {
@@ -68,7 +82,9 @@
         }
 
         .content {
-            padding: 30px;
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
         }
 
         .page {
@@ -94,6 +110,7 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #374151;
+            font-size: 14px;
         }
 
         input, select {
@@ -103,6 +120,7 @@
             border-radius: 8px;
             font-size: 14px;
             transition: border 0.3s;
+            background: white;
         }
 
         input:focus, select:focus {
@@ -114,11 +132,13 @@
             padding: 12px 24px;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             margin-right: 10px;
+            margin-bottom: 10px;
+            display: inline-block;
         }
 
         .btn-primary {
@@ -153,7 +173,7 @@
         .module-container {
             border: 2px solid #e5e7eb;
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             margin-bottom: 20px;
             background: #f9fafb;
         }
@@ -165,15 +185,18 @@
             border-radius: 8px;
             margin-bottom: 15px;
             font-weight: 600;
+            font-size: 16px;
         }
 
         .table-container {
             overflow-x: auto;
             margin-top: 20px;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
             width: 100%;
+            min-width: 600px;
             border-collapse: collapse;
             background: white;
             border-radius: 8px;
@@ -186,11 +209,13 @@
             padding: 12px;
             text-align: left;
             font-weight: 600;
+            font-size: 13px;
         }
 
         td {
             padding: 12px;
             border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
         }
 
         tr:hover {
@@ -200,11 +225,12 @@
         .actions {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .btn-small {
             padding: 6px 12px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .loading {
@@ -213,23 +239,11 @@
             color: #6b7280;
         }
 
-        .config-section {
-            background: #fef3c7;
-            border: 2px solid #fbbf24;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .config-section h3 {
-            color: #92400e;
-            margin-bottom: 15px;
-        }
-
         .alert {
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
+            font-size: 14px;
         }
 
         .alert-success {
@@ -250,14 +264,125 @@
             gap: 15px;
         }
 
+        .page-title {
+            color: #1e40af;
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .footer {
+            background: #f9fafb;
+            border-top: 2px solid #e5e7eb;
+            padding: 15px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .footer strong {
+            color: #1e40af;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
         @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header p {
+                font-size: 12px;
+            }
+
             .grid-2 {
                 grid-template-columns: 1fr;
             }
             
+            .nav {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
             .nav button {
-                font-size: 14px;
+                font-size: 13px;
+                padding: 12px 10px;
+                min-width: 100px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .page-title {
+                font-size: 18px;
+            }
+
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .module-container {
                 padding: 12px;
+            }
+
+            .module-header {
+                font-size: 14px;
+            }
+
+            input, select {
+                font-size: 16px; /* Evita zoom no iOS */
+            }
+
+            th, td {
+                font-size: 12px;
+                padding: 8px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn-small {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .nav button {
+                font-size: 12px;
+                padding: 10px 8px;
+                min-width: 80px;
+            }
+
+            .content {
+                padding: 10px;
             }
         }
     </style>
@@ -270,45 +395,14 @@
         </div>
 
         <div class="nav">
-            <button class="active" onclick="showPage('config')">⚙️ Configuração</button>
-            <button onclick="showPage('cadastro')">➕ Cadastro</button>
+            <button class="active" onclick="showPage('cadastro')">➕ Cadastro</button>
             <button onclick="showPage('inventario')">📋 Inventário</button>
         </div>
 
         <div class="content">
-            <!-- Página de Configuração -->
-            <div id="config" class="page active">
-                <div class="config-section">
-                    <h3>📌 Configuração do Google Sheets</h3>
-                    <div class="form-group">
-                        <label>URL do Web App do Google Sheets:</label>
-                        <input type="text" id="webAppUrl" placeholder="https://script.google.com/macros/s/...../exec">
-                    </div>
-                    <button class="btn btn-primary" onclick="saveConfig()">💾 Salvar Configuração</button>
-                    <button class="btn btn-secondary" onclick="testConnection()">🔌 Testar Conexão</button>
-                </div>
-
-                <div class="alert alert-success" style="display:none;" id="configSuccess">
-                    ✅ Configuração salva com sucesso!
-                </div>
-
-                <div style="background: #e0e7ff; border-radius: 12px; padding: 20px; margin-top: 20px;">
-                    <h3 style="color: #3730a3; margin-bottom: 15px;">📖 Instruções de Configuração</h3>
-                    <ol style="color: #4338ca; line-height: 1.8;">
-                        <li>Acesse seu Google Sheets</li>
-                        <li>Vá em <strong>Extensões > Apps Script</strong></li>
-                        <li>Cole o código do Google Apps Script fornecido</li>
-                        <li>Clique em <strong>Implantar > Nova implantação</strong></li>
-                        <li>Escolha <strong>Aplicativo da Web</strong></li>
-                        <li>Configure "Quem tem acesso" como <strong>Qualquer pessoa</strong></li>
-                        <li>Copie a URL do Web App e cole acima</li>
-                    </ol>
-                </div>
-            </div>
-
             <!-- Página de Cadastro -->
-            <div id="cadastro" class="page">
-                <h2 style="margin-bottom: 20px; color: #1e40af;">Novo Cadastro</h2>
+            <div id="cadastro" class="page active">
+                <h2 class="page-title">Novo Cadastro</h2>
                 
                 <div class="form-group">
                     <label>Tipo de Cadastro:</label>
@@ -371,8 +465,10 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-primary" onclick="salvarVeiculo()">💾 Salvar Veículo</button>
-                    <button class="btn btn-secondary" onclick="limparFormulario()">🔄 Limpar</button>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="salvarVeiculo()">💾 Salvar Veículo</button>
+                        <button class="btn btn-secondary" onclick="limparFormulario()">🔄 Limpar</button>
+                    </div>
                 </div>
 
                 <!-- Formulário Composição -->
@@ -390,7 +486,7 @@
 
                     <div id="modulosContainer"></div>
 
-                    <div style="margin-top: 20px;">
+                    <div class="button-group">
                         <button class="btn btn-primary" onclick="salvarComposicao()">💾 Salvar Composição</button>
                         <button class="btn btn-secondary" onclick="limparFormulario()">🔄 Limpar</button>
                     </div>
@@ -399,7 +495,7 @@
 
             <!-- Página de Inventário -->
             <div id="inventario" class="page">
-                <h2 style="margin-bottom: 20px; color: #1e40af;">Inventário</h2>
+                <h2 class="page-title">Inventário</h2>
                 
                 <div class="form-group">
                     <label>Visualizar:</label>
@@ -416,16 +512,15 @@
                 </div>
             </div>
         </div>
+
+        <div class="footer">
+            Desenvolvido com ❤️ por <strong>Everton Tezzon Ferreira</strong>
+        </div>
     </div>
 
     <script>
-        let config = JSON.parse(localStorage.getItem('vehicleConfig') || '{}');
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw5e6wBxr4_z2FrMRvdzT2nV7_KEafl_M_AW2J3pT3wxV7wKVTJldoFINqOJ6baKjAb/exec';
         let editingId = null;
-
-        // Carregar configuração salva
-        if (config.webAppUrl) {
-            document.getElementById('webAppUrl').value = config.webAppUrl;
-        }
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -436,45 +531,6 @@
 
             if (pageId === 'inventario') {
                 carregarInventario();
-            }
-        }
-
-        function saveConfig() {
-            const url = document.getElementById('webAppUrl').value.trim();
-            if (!url) {
-                alert('Por favor, insira a URL do Web App');
-                return;
-            }
-
-            config.webAppUrl = url;
-            localStorage.setItem('vehicleConfig', JSON.stringify(config));
-            
-            document.getElementById('configSuccess').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('configSuccess').style.display = 'none';
-            }, 3000);
-        }
-
-        async function testConnection() {
-            if (!config.webAppUrl) {
-                alert('Configure a URL do Web App primeiro');
-                return;
-            }
-
-            try {
-                const response = await fetch(config.webAppUrl + '?action=test', {
-                    method: 'GET',
-                    redirect: 'follow'
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    alert('✅ Conexão bem-sucedida!\n\nAbas criadas:\n' + data.sheets.join('\n'));
-                } else {
-                    alert('❌ Erro: ' + data.message);
-                }
-            } catch (error) {
-                alert('❌ Erro ao conectar: ' + error.message + '\n\nVerifique se:\n1. A URL está correta\n2. A implantação está ativa\n3. O acesso está configurado como "Qualquer pessoa"');
             }
         }
 
@@ -553,12 +609,6 @@
         }
 
         async function salvarVeiculo() {
-            if (!config.webAppUrl) {
-                alert('Configure a URL do Web App primeiro');
-                showPage('config');
-                return;
-            }
-
             const dados = {
                 tipo: 'veiculo',
                 tipoVeiculo: document.getElementById('veiculoTipo').value,
@@ -572,13 +622,12 @@
             };
 
             try {
-                // Criar FormData para enviar via POST
                 const formData = new URLSearchParams();
                 formData.append('action', editingId ? 'update' : 'create');
                 if (editingId) formData.append('id', editingId);
                 formData.append('data', JSON.stringify(dados));
                 
-                const response = await fetch(config.webAppUrl, {
+                const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     body: formData
                 });
@@ -598,12 +647,6 @@
         }
 
         async function salvarComposicao() {
-            if (!config.webAppUrl) {
-                alert('Configure a URL do Web App primeiro');
-                showPage('config');
-                return;
-            }
-
             const numModulos = parseInt(document.getElementById('composicaoTipo').value);
             const tipoConfig = ['', 'Solteiro', 'Duplado', 'Tremiado', 'Tremiado + Dolly'][numModulos];
             
@@ -628,13 +671,12 @@
             };
 
             try {
-                // Criar FormData para enviar via POST
                 const formData = new URLSearchParams();
                 formData.append('action', editingId ? 'update' : 'create');
                 if (editingId) formData.append('id', editingId);
                 formData.append('data', JSON.stringify(dados));
                 
-                const response = await fetch(config.webAppUrl, {
+                const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     body: formData
                 });
@@ -667,17 +709,11 @@
         }
 
         async function carregarInventario() {
-            if (!config.webAppUrl) {
-                document.getElementById('inventarioContent').innerHTML = 
-                    '<div class="alert alert-error">⚠️ Configure a URL do Web App primeiro na aba Configuração</div>';
-                return;
-            }
-
             const tipo = document.getElementById('inventarioTipo').value;
             document.getElementById('inventarioContent').innerHTML = '<div class="loading">⏳ Carregando dados...</div>';
 
             try {
-                const response = await fetch(`${config.webAppUrl}?action=list&tipo=${tipo}`, {
+                const response = await fetch(`${WEB_APP_URL}?action=list&tipo=${tipo}`, {
                     method: 'GET',
                     redirect: 'follow'
                 });
@@ -692,8 +728,7 @@
                 }
             } catch (error) {
                 document.getElementById('inventarioContent').innerHTML = 
-                    '<div class="alert alert-error">❌ Erro ao carregar dados: ' + error.message + 
-                    '<br><br>Verifique se a URL do Web App está correta e se a implantação está ativa.</div>';
+                    '<div class="alert alert-error">❌ Erro ao carregar dados: ' + error.message + '</div>';
             }
         }
 
@@ -730,8 +765,7 @@
                             <td>${v.modelo}</td>
                             <td>${v.ano}</td>
                             <td class="actions">
-                                <button class="btn btn-secondary btn-small" onclick="editarRegistro('${v.id}', 'veiculo')">✏️</button>
-                                <button class="btn btn-danger btn-small" onclick="excluirRegistro('${v.id}')">🗑️</button>
+                                <button class="btn btn-danger btn-small" onclick="excluirRegistro('${v.id}')">🗑️ Excluir</button>
                             </td>
                         </tr>
                     `;
@@ -756,8 +790,7 @@
                             <td>${c.tipoComposicao}</td>
                             <td>${c.numModulos}</td>
                             <td class="actions">
-                                <button class="btn btn-secondary btn-small" onclick="editarRegistro('${c.id}', 'composicao')">✏️</button>
-                                <button class="btn btn-danger btn-small" onclick="excluirRegistro('${c.id}')">🗑️</button>
+                                <button class="btn btn-danger btn-small" onclick="excluirRegistro('${c.id}')">🗑️ Excluir</button>
                             </td>
                         </tr>
                     `;
@@ -776,7 +809,7 @@
                 formData.append('action', 'delete');
                 formData.append('id', id);
                 
-                const response = await fetch(config.webAppUrl, {
+                const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     body: formData
                 });
@@ -800,6 +833,13 @@
                 console.log('Service Worker registrado');
             });
         }
+
+        // Carregar inventário ao abrir a página
+        window.addEventListener('load', () => {
+            if (document.getElementById('inventario').classList.contains('active')) {
+                carregarInventario();
+            }
+        });
     </script>
 </body>
 </html>
