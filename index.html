@@ -572,21 +572,15 @@
             };
 
             try {
-                const params = new URLSearchParams({
-                    action: editingId ? 'update' : 'create'
-                });
+                // Criar FormData para enviar via POST
+                const formData = new URLSearchParams();
+                formData.append('action', editingId ? 'update' : 'create');
+                if (editingId) formData.append('id', editingId);
+                formData.append('data', JSON.stringify(dados));
                 
-                if (editingId) {
-                    params.append('id', editingId);
-                }
-                
-                const response = await fetch(`${config.webAppUrl}?${params.toString()}`, {
+                const response = await fetch(config.webAppUrl, {
                     method: 'POST',
-                    redirect: 'follow',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dados)
+                    body: formData
                 });
 
                 const result = await response.json();
@@ -634,21 +628,15 @@
             };
 
             try {
-                const params = new URLSearchParams({
-                    action: editingId ? 'update' : 'create'
-                });
+                // Criar FormData para enviar via POST
+                const formData = new URLSearchParams();
+                formData.append('action', editingId ? 'update' : 'create');
+                if (editingId) formData.append('id', editingId);
+                formData.append('data', JSON.stringify(dados));
                 
-                if (editingId) {
-                    params.append('id', editingId);
-                }
-                
-                const response = await fetch(`${config.webAppUrl}?${params.toString()}`, {
+                const response = await fetch(config.webAppUrl, {
                     method: 'POST',
-                    redirect: 'follow',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dados)
+                    body: formData
                 });
 
                 const result = await response.json();
@@ -784,13 +772,13 @@
             if (!confirm('⚠️ Tem certeza que deseja excluir este registro?\n\nEsta ação não pode ser desfeita.')) return;
 
             try {
-                const response = await fetch(`${config.webAppUrl}?action=delete&id=${id}`, {
+                const formData = new URLSearchParams();
+                formData.append('action', 'delete');
+                formData.append('id', id);
+                
+                const response = await fetch(config.webAppUrl, {
                     method: 'POST',
-                    redirect: 'follow',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({id: id})
+                    body: formData
                 });
                 
                 const result = await response.json();
