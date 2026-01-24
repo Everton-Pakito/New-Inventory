@@ -436,17 +436,17 @@
 
                         <div class="form-group">
                             <label>Frota:</label>
-                            <input type="text" id="veiculoFrota">
+                            <input type="text" id="veiculoFrota" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                         <div class="form-group">
                             <label>Placa:</label>
-                            <input type="text" id="veiculoPlaca">
+                            <input type="text" id="veiculoPlaca" maxlength="8" placeholder="ABC-1234" style="text-transform: uppercase;" oninput="formatarPlaca(this)">
                         </div>
 
                         <div class="form-group">
                             <label>Chassi:</label>
-                            <input type="text" id="veiculoChassi">
+                            <input type="text" id="veiculoChassi" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                         <div class="form-group">
@@ -563,6 +563,16 @@
             }
         }
 
+        function formatarPlaca(input) {
+            let valor = input.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+            
+            if (valor.length > 3) {
+                valor = valor.substring(0, 3) + '-' + valor.substring(3, 7);
+            }
+            
+            input.value = valor;
+        }
+
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
@@ -618,17 +628,17 @@
 
                         <div class="form-group">
                             <label>Frota:</label>
-                            <input type="text" id="mod${numero}Frota">
+                            <input type="text" id="mod${numero}Frota" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                         <div class="form-group">
                             <label>Placa:</label>
-                            <input type="text" id="mod${numero}Placa">
+                            <input type="text" id="mod${numero}Placa" maxlength="8" placeholder="ABC-1234" style="text-transform: uppercase;" oninput="formatarPlaca(this)">
                         </div>
 
                         <div class="form-group">
                             <label>Chassi:</label>
-                            <input type="text" id="mod${numero}Chassi">
+                            <input type="text" id="mod${numero}Chassi" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
                         </div>
 
                         <div class="form-group">
