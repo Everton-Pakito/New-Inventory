@@ -487,7 +487,8 @@
                             <option value="">Selecione...</option>
                             <option value="1">1 Módulo (Solteiro)</option>
                             <option value="2">2 Módulos (Duplado)</option>
-                            <option value="3">3 Módulos (Tremiado)</option>
+                            <option value="3a">3 Módulos (Duplado + Dolly)</option>
+                            <option value="3b">3 Módulos (Tremiado)</option>
                             <option value="4">4 Módulos (Tremiado + Dolly)</option>
                         </select>
                     </div>
@@ -536,13 +537,9 @@
                 'G560 A6X4 XT CS',
                 'G560 A6X4 XT'
             ],
-            'VOLVO': [
-                'FH 540 6X4T'
-            ],
+            'VOLVO': [],
             'MERCEDES': [],
-            'VOLKSWAGEN': [
-                '6.160'
-            ]
+            'VOLKSWAGEN': []
         };
 
         function atualizarModelosVeiculo() {
@@ -597,9 +594,15 @@
         }
 
         function changeComposicaoTipo() {
-            const numModulos = parseInt(document.getElementById('composicaoTipo').value);
+            const tipoSelecionado = document.getElementById('composicaoTipo').value;
             const container = document.getElementById('modulosContainer');
             container.innerHTML = '';
+
+            let numModulos = 0;
+            if (tipoSelecionado === '1') numModulos = 1;
+            else if (tipoSelecionado === '2') numModulos = 2;
+            else if (tipoSelecionado === '3a' || tipoSelecionado === '3b') numModulos = 3;
+            else if (tipoSelecionado === '4') numModulos = 4;
 
             for (let i = 1; i <= numModulos; i++) {
                 container.innerHTML += createModuloForm(i);
@@ -702,8 +705,23 @@
         }
 
         async function salvarComposicao() {
-            const numModulos = parseInt(document.getElementById('composicaoTipo').value);
-            const tipoConfig = ['', 'Solteiro', 'Duplado', 'Tremiado', 'Tremiado + Dolly'][numModulos];
+            const tipoSelecionado = document.getElementById('composicaoTipo').value;
+            
+            const tiposConfig = {
+                '1': 'Solteiro',
+                '2': 'Duplado',
+                '3a': 'Duplado + Dolly',
+                '3b': 'Tremiado',
+                '4': 'Tremiado + Dolly'
+            };
+            
+            const tipoConfig = tiposConfig[tipoSelecionado];
+            
+            let numModulos = 0;
+            if (tipoSelecionado === '1') numModulos = 1;
+            else if (tipoSelecionado === '2') numModulos = 2;
+            else if (tipoSelecionado === '3a' || tipoSelecionado === '3b') numModulos = 3;
+            else if (tipoSelecionado === '4') numModulos = 4;
             
             const modulos = [];
             for (let i = 1; i <= numModulos; i++) {
@@ -820,6 +838,7 @@
                             <td>${v.modelo}</td>
                             <td>${v.ano}</td>
                             <td class="actions">
+                                <button class="btn btn-secondary btn-small" onclick="editarVeiculo('${v.id}', ${JSON.stringify(v).replace(/"/g, '&quot;')})">✏️ Editar</button>
                                 <button class="btn btn-danger btn-small" onclick="excluirRegistro('${v.id}')">🗑️ Excluir</button>
                             </td>
                         </tr>
@@ -845,6 +864,7 @@
                             <td>${c.tipoComposicao}</td>
                             <td>${c.numModulos}</td>
                             <td class="actions">
+                                <button class="btn btn-secondary btn-small" onclick="editarComposicao('${c.id}', ${JSON.stringify(c).replace(/"/g, '&quot;')})">✏️ Editar</button>
                                 <button class="btn btn-danger btn-small" onclick="excluirRegistro('${c.id}')">🗑️ Excluir</button>
                             </td>
                         </tr>
@@ -882,6 +902,71 @@
             }
         }
 
+        function editarVeiculo(id, dados) {
+            editingId = id;
+            
+            // Ir para aba de cadastro
+            showPage('cadastro');
+            document.querySelectorAll('.nav button')[0].classList.add('active');
+            
+            // Preencher formulário
+            document.getElementById('tipoCadastro').value = 'veiculo';
+            changeTipoCadastro();
+            
+            document.getElementById('veiculoTipo').value = dados.tipoVeiculo;
+            document.getElementById('veiculoStatus').value = dados.status;
+            document.getElementById('veiculoFrota').value = dados.frota;
+            document.getElementById('veiculoPlaca').value = dados.placa;
+            document.getElementById('veiculoChassi').value = dados.chassi;
+            document.getElementById('veiculoMarca').value = dados.marca;
+            atualizarModelosVeiculo();
+            document.getElementById('veiculoModelo').value = dados.modelo;
+            document.getElementById('veiculoAno').value = dados.ano;
+            
+            // Scroll para o topo
+            window.scrollTo(0, 0);
+        }
+
+        function editarComposicao(id, dados) {
+            editingId = id;
+            
+            // Ir para aba de cadastro
+            showPage('cadastro');
+            document.querySelectorAll('.nav button')[0].classList.add('active');
+            
+            // Preencher formulário
+            document.getElementById('tipoCadastro').value = 'composicao';
+            changeTipoCadastro();
+            
+            // Mapear tipo de composição
+            const tiposMap = {
+                'Solteiro': '1',
+                'Duplado': '2',
+                'Duplado + Dolly': '3a',
+                'Tremiado': '3b',
+                'Tremiado + Dolly': '4'
+            };
+            
+            document.getElementById('composicaoTipo').value = tiposMap[dados.tipoComposicao] || '';
+            changeComposicaoTipo();
+            
+            // Preencher módulos
+            const modulos = typeof dados.modulos === 'string' ? JSON.parse(dados.modulos) : dados.modulos;
+            modulos.forEach((mod, index) => {
+                const i = index + 1;
+                document.getElementById(`mod${i}Status`).value = mod.status;
+                document.getElementById(`mod${i}Tipo`).value = mod.tipo;
+                document.getElementById(`mod${i}Frota`).value = mod.frota;
+                document.getElementById(`mod${i}Placa`).value = mod.placa;
+                document.getElementById(`mod${i}Chassi`).value = mod.chassi;
+                document.getElementById(`mod${i}Marca`).value = mod.marca;
+                document.getElementById(`mod${i}Ano`).value = mod.ano;
+            });
+            
+            // Scroll para o topo
+            window.scrollTo(0, 0);
+        }
+
         // Registrar Service Worker para PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').then(() => {
@@ -898,4 +983,3 @@
     </script>
 </body>
 </html>
-
