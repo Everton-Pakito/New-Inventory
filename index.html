@@ -7,7 +7,7 @@
     <meta name="description" content="Sistema de Cadastro e Inventário de Veículos">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA0klEQVRYhe2WsQ3CMBBFn5GYgBGYADrKbMAGjMAGbMAIbMAGjMAGSJRuBDZgBEaADZAoKBLhODY+h0RIfqnK1r17/s52bCBJkiT5D1wBC+AK7A0bYAfUwBM4AutYAx6Aqe2ngLmF1UDu4lXEBOh+xZ8xBlRzE6Dbm/iXGgXv2xoFH9saBS/aGgUv2hoFL9kaBU/bGgUP2xoF99saBXfbGgW32xoFt9oaBTfbGgU32BoF19saBVfaGgWX2xoFF9oaBefbGgVn2hoFp9saBSfbGgUnxPsCL+3pOIflqh8AAAAASUVORK5CYII=">
-    <title>Sistema de Inventário de Veículos</title>
+    <title>Sistema de Inventário de Veículos - V22</title>
     <style>
         * {
             margin: 0;
@@ -353,7 +353,7 @@
             }
 
             input, select {
-                font-size: 16px; /* Evita zoom no iOS */
+                font-size: 16px;
             }
 
             th, td {
@@ -391,7 +391,7 @@
     <div class="container">
         <div class="header">
             <h1>🚛 Sistema de Inventário de Veículos</h1>
-            <p>Gestão de Frota e Composições</p>
+            <p>Gestão de Frota e Composições - V22</p>
         </div>
 
         <div class="nav">
@@ -418,6 +418,7 @@
                     <div class="form-group">
                         <label>Tipo de Veículo:</label>
                         <select id="veiculoTipo">
+                            <option value="">Selecione...</option>
                             <option value="Leve">Leve</option>
                             <option value="Semi-Leve">Semi-Leve</option>
                             <option value="Cavalo Mecânico">Cavalo Mecânico</option>
@@ -428,6 +429,7 @@
                         <div class="form-group">
                             <label>Status:</label>
                             <select id="veiculoStatus">
+                                <option value="">Selecione...</option>
                                 <option value="Ativo">Ativo</option>
                                 <option value="Inativo">Inativo</option>
                                 <option value="Manutenção">Manutenção</option>
@@ -546,7 +548,7 @@
             const marca = document.getElementById('veiculoMarca').value;
             const selectModelo = document.getElementById('veiculoModelo');
             
-            selectModelo.innerHTML = '<option value="">Selecione o modelo</option>';
+            selectModelo.innerHTML = '<option value="">Selecione...</option>';
             
             if (marca && modelosPorMarca[marca]) {
                 const modelos = modelosPorMarca[marca];
@@ -618,6 +620,7 @@
                         <div class="form-group">
                             <label>Status:</label>
                             <select id="mod${numero}Status">
+                                <option value="">Selecione...</option>
                                 <option value="Ativo">Ativo</option>
                                 <option value="Inativo">Inativo</option>
                                 <option value="Manutenção">Manutenção</option>
@@ -627,6 +630,7 @@
                         <div class="form-group">
                             <label>Tipo:</label>
                             <select id="mod${numero}Tipo">
+                                <option value="">Selecione...</option>
                                 <option value="Semi-Reboque">Semi-Reboque</option>
                                 <option value="Reboque">Reboque</option>
                                 <option value="Dolly-Reboque">Dolly-Reboque</option>
@@ -651,6 +655,7 @@
                         <div class="form-group">
                             <label>Marca:</label>
                             <select id="mod${numero}Marca">
+                                <option value="">Selecione...</option>
                                 <option value="Fachinni">Fachinni</option>
                                 <option value="Randon">Randon</option>
                                 <option value="Usicamp">Usicamp</option>
@@ -666,8 +671,40 @@
             `;
         }
 
+        function preencherCamposVazios(dados, isMod = false) {
+            // Campos de texto padrão
+            const camposTexto = ['frota', 'chassi', 'marca', 'modelo', 'ano'];
+            camposTexto.forEach(campo => {
+                if (!dados[campo] || dados[campo].toString().trim() === '') {
+                    dados[campo] = 'Sem Dados';
+                }
+            });
+
+            // Campo placa específico
+            if (!dados.placa || dados.placa.trim() === '') {
+                dados.placa = 'SEM-PLAC';
+            }
+
+            // Campos de seleção
+            if (!dados.status || dados.status === '') {
+                dados.status = 'Sem Dados';
+            }
+
+            if (!dados.tipo || dados.tipo === '') {
+                dados.tipo = 'Sem Dados';
+            }
+
+            if (!isMod) {
+                if (!dados.tipoVeiculo || dados.tipoVeiculo === '') {
+                    dados.tipoVeiculo = 'Sem Dados';
+                }
+            }
+
+            return dados;
+        }
+
         async function salvarVeiculo() {
-            const dados = {
+            let dados = {
                 tipo: 'veiculo',
                 tipoVeiculo: document.getElementById('veiculoTipo').value,
                 status: document.getElementById('veiculoStatus').value,
@@ -678,6 +715,17 @@
                 modelo: document.getElementById('veiculoModelo').value,
                 ano: document.getElementById('veiculoAno').value
             };
+
+            // Preencher campos vazios
+            dados = preencherCamposVazios(dados);
+
+            // Verificar duplicação apenas se não estiver editando
+            if (!editingId && dados.placa !== 'SEM-PLAC') {
+                const duplicado = await verificarDuplicacaoVeiculo(dados.placa, dados.chassi);
+                if (duplicado) {
+                    return;
+                }
+            }
 
             try {
                 const formData = new URLSearchParams();
@@ -707,6 +755,11 @@
         async function salvarComposicao() {
             const tipoSelecionado = document.getElementById('composicaoTipo').value;
             
+            if (!tipoSelecionado) {
+                alert('⚠️ Selecione o tipo de composição!');
+                return;
+            }
+            
             const tiposConfig = {
                 '1': 'Solteiro',
                 '2': 'Duplado',
@@ -725,7 +778,7 @@
             
             const modulos = [];
             for (let i = 1; i <= numModulos; i++) {
-                modulos.push({
+                let modulo = {
                     status: document.getElementById(`mod${i}Status`).value,
                     tipo: document.getElementById(`mod${i}Tipo`).value,
                     frota: document.getElementById(`mod${i}Frota`).value,
@@ -733,7 +786,32 @@
                     chassi: document.getElementById(`mod${i}Chassi`).value,
                     marca: document.getElementById(`mod${i}Marca`).value,
                     ano: document.getElementById(`mod${i}Ano`).value
-                });
+                };
+
+                // Preencher campos vazios
+                modulo = preencherCamposVazios(modulo, true);
+                modulos.push(modulo);
+            }
+
+            // Verificar duplicação de placas entre módulos
+            const placas = modulos.map(m => m.placa).filter(p => p !== 'SEM-PLAC');
+            const placasDuplicadas = placas.filter((p, index) => placas.indexOf(p) !== index);
+            if (placasDuplicadas.length > 0) {
+                alert(`⚠️ A placa "${placasDuplicadas[0]}" está duplicada entre os módulos!`);
+                return;
+            }
+
+            // Verificar duplicação no banco apenas se não estiver editando
+            if (!editingId) {
+                for (let i = 0; i < modulos.length; i++) {
+                    if (modulos[i].placa !== 'SEM-PLAC') {
+                        const duplicado = await verificarDuplicacaoVeiculo(modulos[i].placa, modulos[i].chassi);
+                        if (duplicado) {
+                            alert(`⚠️ Módulo ${i + 1}: Placa ou chassi já cadastrado!`);
+                            return;
+                        }
+                    }
+                }
             }
 
             const dados = {
@@ -776,6 +854,7 @@
             
             document.querySelectorAll('input, select').forEach(el => {
                 if (el.type === 'number' || el.type === 'text') el.value = '';
+                if (el.tagName === 'SELECT') el.selectedIndex = 0;
             });
             
             editingId = null;
@@ -905,40 +984,34 @@
         function editarVeiculo(id, dados) {
             editingId = id;
             
-            // Ir para aba de cadastro
             showPage('cadastro');
             document.querySelectorAll('.nav button')[0].classList.add('active');
             
-            // Preencher formulário
             document.getElementById('tipoCadastro').value = 'veiculo';
             changeTipoCadastro();
             
             document.getElementById('veiculoTipo').value = dados.tipoVeiculo;
             document.getElementById('veiculoStatus').value = dados.status;
-            document.getElementById('veiculoFrota').value = dados.frota;
-            document.getElementById('veiculoPlaca').value = dados.placa;
-            document.getElementById('veiculoChassi').value = dados.chassi;
-            document.getElementById('veiculoMarca').value = dados.marca;
+            document.getElementById('veiculoFrota').value = dados.frota === 'Sem Dados' ? '' : dados.frota;
+            document.getElementById('veiculoPlaca').value = dados.placa === 'SEM-PLAC' ? '' : dados.placa;
+            document.getElementById('veiculoChassi').value = dados.chassi === 'Sem Dados' ? '' : dados.chassi;
+            document.getElementById('veiculoMarca').value = dados.marca === 'Sem Dados' ? '' : dados.marca;
             atualizarModelosVeiculo();
-            document.getElementById('veiculoModelo').value = dados.modelo;
-            document.getElementById('veiculoAno').value = dados.ano;
+            document.getElementById('veiculoModelo').value = dados.modelo === 'Sem Dados' ? '' : dados.modelo;
+            document.getElementById('veiculoAno').value = dados.ano === 'Sem Dados' ? '' : dados.ano;
             
-            // Scroll para o topo
             window.scrollTo(0, 0);
         }
 
         function editarComposicao(id, dados) {
             editingId = id;
             
-            // Ir para aba de cadastro
             showPage('cadastro');
             document.querySelectorAll('.nav button')[0].classList.add('active');
             
-            // Preencher formulário
             document.getElementById('tipoCadastro').value = 'composicao';
             changeTipoCadastro();
             
-            // Mapear tipo de composição
             const tiposMap = {
                 'Solteiro': '1',
                 'Duplado': '2',
@@ -950,31 +1023,73 @@
             document.getElementById('composicaoTipo').value = tiposMap[dados.tipoComposicao] || '';
             changeComposicaoTipo();
             
-            // Preencher módulos
             const modulos = typeof dados.modulos === 'string' ? JSON.parse(dados.modulos) : dados.modulos;
             modulos.forEach((mod, index) => {
                 const i = index + 1;
                 document.getElementById(`mod${i}Status`).value = mod.status;
                 document.getElementById(`mod${i}Tipo`).value = mod.tipo;
-                document.getElementById(`mod${i}Frota`).value = mod.frota;
-                document.getElementById(`mod${i}Placa`).value = mod.placa;
-                document.getElementById(`mod${i}Chassi`).value = mod.chassi;
-                document.getElementById(`mod${i}Marca`).value = mod.marca;
-                document.getElementById(`mod${i}Ano`).value = mod.ano;
+                document.getElementById(`mod${i}Frota`).value = mod.frota === 'Sem Dados' ? '' : mod.frota;
+                document.getElementById(`mod${i}Placa`).value = mod.placa === 'SEM-PLAC' ? '' : mod.placa;
+                document.getElementById(`mod${i}Chassi`).value = mod.chassi === 'Sem Dados' ? '' : mod.chassi;
+                document.getElementById(`mod${i}Marca`).value = mod.marca === 'Sem Dados' ? '' : mod.marca;
+                document.getElementById(`mod${i}Ano`).value = mod.ano === 'Sem Dados' ? '' : mod.ano;
             });
             
-            // Scroll para o topo
             window.scrollTo(0, 0);
         }
 
-        // Registrar Service Worker para PWA
+        async function verificarDuplicacaoVeiculo(placa, chassi) {
+            try {
+                const responseVeiculos = await fetch(`${WEB_APP_URL}?action=list&tipo=veiculos`);
+                const dataVeiculos = await responseVeiculos.json();
+                
+                if (dataVeiculos.success && dataVeiculos.data) {
+                    for (const veiculo of dataVeiculos.data) {
+                        if (veiculo.placa && veiculo.placa === placa && placa !== 'SEM-PLAC') {
+                            alert(`⚠️ DUPLICAÇÃO!\n\nPlaca "${placa}" já cadastrada!\n\nVeículo: ${veiculo.tipoVeiculo}\nFrota: ${veiculo.frota}\nID: ${veiculo.id}`);
+                            return true;
+                        }
+                        if (chassi && veiculo.chassi && veiculo.chassi === chassi && chassi !== 'Sem Dados') {
+                            alert(`⚠️ DUPLICAÇÃO!\n\nChassi "${chassi}" já cadastrado!\n\nVeículo: ${veiculo.tipoVeiculo}\nPlaca: ${veiculo.placa}\nID: ${veiculo.id}`);
+                            return true;
+                        }
+                    }
+                }
+                
+                const responseComposicoes = await fetch(`${WEB_APP_URL}?action=list&tipo=composicoes`);
+                const dataComposicoes = await responseComposicoes.json();
+                
+                if (dataComposicoes.success && dataComposicoes.data) {
+                    for (const comp of dataComposicoes.data) {
+                        const modulos = typeof comp.modulos === 'string' ? JSON.parse(comp.modulos) : comp.modulos;
+                        
+                        for (let i = 0; i < modulos.length; i++) {
+                            const mod = modulos[i];
+                            if (mod.placa && mod.placa === placa && placa !== 'SEM-PLAC') {
+                                alert(`⚠️ DUPLICAÇÃO!\n\nPlaca "${placa}" já cadastrada!\n\nComposição: ${comp.tipoComposicao}\nMódulo: ${i + 1}\nID: ${comp.id}`);
+                                return true;
+                            }
+                            if (chassi && mod.chassi && mod.chassi === chassi && chassi !== 'Sem Dados') {
+                                alert(`⚠️ DUPLICAÇÃO!\n\nChassi "${chassi}" já cadastrado!\n\nComposição: ${comp.tipoComposicao}\nMódulo: ${i + 1}\nID: ${comp.id}`);
+                                return true;
+                            }
+                        }
+                    }
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Erro ao verificar duplicação:', error);
+                return false;
+            }
+        }
+
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').then(() => {
                 console.log('Service Worker registrado');
             });
         }
 
-        // Carregar inventário ao abrir a página
         window.addEventListener('load', () => {
             if (document.getElementById('inventario').classList.contains('active')) {
                 carregarInventario();
