@@ -508,15 +508,25 @@
             <div id="inventario" class="page">
                 <h2 class="page-title">Inventário</h2>
                 
-                <div class="form-group">
-                    <label>Visualizar:</label>
-                    <select id="inventarioTipo" onchange="carregarInventario()">
-                        <option value="veiculos">Veículos</option>
-                        <option value="composicoes">Composições</option>
-                    </select>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Visualizar:</label>
+                        <select id="inventarioTipo" onchange="carregarInventario()">
+                            <option value="veiculos">Veículos</option>
+                            <option value="composicoes">Composições</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔍 Buscar (Placa, Frota, ID, Chassi):</label>
+                        <input type="text" id="buscaInventario" placeholder="Digite para buscar..." style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase(); filtrarInventario()">
+                    </div>
                 </div>
 
-                <button class="btn btn-primary" onclick="carregarInventario()">🔄 Atualizar</button>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="carregarInventario()">🔄 Atualizar</button>
+                    <button class="btn btn-secondary" onclick="limparBusca()">🗑️ Limpar Busca</button>
+                </div>
 
                 <div id="inventarioContent" class="loading">
                     Carregando inventário...
@@ -532,6 +542,7 @@
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw5e6wBxr4_z2FrMRvdzT2nV7_KEafl_M_AW2J3pT3wxV7wKVTJldoFINqOJ6baKjAb/exec';
         let editingId = null;
+        let inventarioAtual = []; // Armazena dados atuais do inventário
 
         // Modelos de veículos por marca
         const modelosPorMarca = {
@@ -863,6 +874,7 @@
         async function carregarInventario() {
             const tipo = document.getElementById('inventarioTipo').value;
             document.getElementById('inventarioContent').innerHTML = '<div class="loading">⏳ Carregando dados...</div>';
+            document.getElementById('buscaInventario').value = '';
 
             try {
                 const response = await fetch(`${WEB_APP_URL}?action=list&tipo=${tipo}`, {
@@ -873,15 +885,71 @@
                 const data = await response.json();
 
                 if (data.success && data.data.length > 0) {
-                    mostrarTabela(data.data, tipo);
+                    inventarioAtual = data.data;
+                    mostrarTabela(inventarioAtual, tipo);
                 } else {
+                    inventarioAtual = [];
                     document.getElementById('inventarioContent').innerHTML = 
                         '<div class="alert alert-error">📭 Nenhum registro encontrado</div>';
                 }
             } catch (error) {
+                inventarioAtual = [];
                 document.getElementById('inventarioContent').innerHTML = 
                     '<div class="alert alert-error">❌ Erro ao carregar dados: ' + error.message + '</div>';
             }
+        }
+
+        function filtrarInventario() {
+            const busca = document.getElementById('buscaInventario').value.toUpperCase();
+            const tipo = document.getElementById('inventarioTipo').value;
+            
+            if (!busca) {
+                mostrarTabela(inventarioAtual, tipo);
+                return;
+            }
+
+            let dadosFiltrados = [];
+
+            if (tipo === 'veiculos') {
+                dadosFiltrados = inventarioAtual.filter(v => {
+                    return (v.id && v.id.toUpperCase().includes(busca)) ||
+                           (v.placa && v.placa.toUpperCase().includes(busca)) ||
+                           (v.frota && v.frota.toUpperCase().includes(busca)) ||
+                           (v.chassi && v.chassi.toUpperCase().includes(busca)) ||
+                           (v.tipoVeiculo && v.tipoVeiculo.toUpperCase().includes(busca)) ||
+                           (v.marca && v.marca.toUpperCase().includes(busca)) ||
+                           (v.modelo && v.modelo.toUpperCase().includes(busca));
+                });
+            } else {
+                dadosFiltrados = inventarioAtual.filter(c => {
+                    let match = (c.id && c.id.toUpperCase().includes(busca)) ||
+                               (c.tipoComposicao && c.tipoComposicao.toUpperCase().includes(busca));
+                    
+                    if (!match && c.modulos) {
+                        const modulos = typeof c.modulos === 'string' ? JSON.parse(c.modulos) : c.modulos;
+                        match = modulos.some(m => 
+                            (m.placa && m.placa.toUpperCase().includes(busca)) ||
+                            (m.frota && m.frota.toUpperCase().includes(busca)) ||
+                            (m.chassi && m.chassi.toUpperCase().includes(busca))
+                        );
+                    }
+                    
+                    return match;
+                });
+            }
+
+            if (dadosFiltrados.length > 0) {
+                mostrarTabela(dadosFiltrados, tipo);
+            } else {
+                document.getElementById('inventarioContent').innerHTML = 
+                    '<div class="alert alert-error">🔍 Nenhum resultado encontrado para "' + busca + '"</div>';
+            }
+        }
+
+        function limparBusca() {
+            document.getElementById('buscaInventario').value = '';
+            const tipo = document.getElementById('inventarioTipo').value;
+            mostrarTabela(inventarioAtual, tipo);
         }
 
         function mostrarTabela(dados, tipo) {
@@ -891,14 +959,16 @@
                 html += `
                     <thead>
                         <tr>
+                            <th>Placa 🚗</th>
+                            <th>Frota</th>
                             <th>ID</th>
                             <th>Tipo</th>
                             <th>Status</th>
-                            <th>Frota</th>
-                            <th>Placa</th>
                             <th>Marca</th>
                             <th>Modelo</th>
+                            <th>Chassi</th>
                             <th>Ano</th>
+                            <th>Cadastro</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -908,14 +978,16 @@
                 dados.forEach(v => {
                     html += `
                         <tr>
-                            <td>${v.id}</td>
+                            <td><strong>${v.placa}</strong></td>
+                            <td>${v.frota}</td>
+                            <td><small>${v.id}</small></td>
                             <td>${v.tipoVeiculo}</td>
                             <td>${v.status}</td>
-                            <td>${v.frota}</td>
-                            <td>${v.placa}</td>
                             <td>${v.marca}</td>
                             <td>${v.modelo}</td>
+                            <td><small>${v.chassi}</small></td>
                             <td>${v.ano}</td>
+                            <td><small>${v.dataCadastro || 'N/A'}</small></td>
                             <td class="actions">
                                 <button class="btn btn-secondary btn-small" onclick="editarVeiculo('${v.id}', ${JSON.stringify(v).replace(/"/g, '&quot;')})">✏️ Editar</button>
                                 <button class="btn btn-danger btn-small" onclick="excluirRegistro('${v.id}')">🗑️ Excluir</button>
@@ -927,9 +999,11 @@
                 html += `
                     <thead>
                         <tr>
+                            <th>Placas 🚗</th>
                             <th>ID</th>
-                            <th>Tipo</th>
-                            <th>Módulos</th>
+                            <th>Tipo Composição</th>
+                            <th>Nº Módulos</th>
+                            <th>Cadastro</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -937,11 +1011,16 @@
                 `;
                 
                 dados.forEach(c => {
+                    const modulos = typeof c.modulos === 'string' ? JSON.parse(c.modulos) : c.modulos;
+                    const placas = modulos.map(m => m.placa).join(' | ');
+                    
                     html += `
                         <tr>
-                            <td>${c.id}</td>
+                            <td><strong>${placas}</strong></td>
+                            <td><small>${c.id}</small></td>
                             <td>${c.tipoComposicao}</td>
                             <td>${c.numModulos}</td>
+                            <td><small>${c.dataCadastro || 'N/A'}</small></td>
                             <td class="actions">
                                 <button class="btn btn-secondary btn-small" onclick="editarComposicao('${c.id}', ${JSON.stringify(c).replace(/"/g, '&quot;')})">✏️ Editar</button>
                                 <button class="btn btn-danger btn-small" onclick="excluirRegistro('${c.id}')">🗑️ Excluir</button>
@@ -952,6 +1031,9 @@
             }
             
             html += '</tbody></table></div>';
+            html += `<div style="margin-top: 15px; color: #6b7280; font-size: 14px;">
+                        📊 Total de registros: <strong>${dados.length}</strong>
+                     </div>`;
             document.getElementById('inventarioContent').innerHTML = html;
         }
 
